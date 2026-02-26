@@ -8,7 +8,7 @@ namespace VacationManager.Services
 {
     public class Utilities
     {
-        private static readonly string connectionString = @"Data Source = localhost; Initial Catalog = VacationDB; Integrated Security = True;Encrypt=false";
+        private static readonly string connectionString = new DbService().connectionString;
         public string GenerateToken()
         {
             Random rng = new();

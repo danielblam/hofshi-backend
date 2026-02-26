@@ -13,7 +13,7 @@ namespace VacationManager.Services
     
     public class AccountService
     {
-        private static readonly string connectionString = @"Data Source = localhost; Initial Catalog = VacationDB; Integrated Security = True;Encrypt=false";
+        private static readonly string connectionString = new DbService().connectionString;
         private static readonly string salt = "2ePqYskKoji4lpDU94EoGzDiVCggPJVQ";
         public enum Roles
         {

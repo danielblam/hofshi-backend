@@ -6,7 +6,7 @@ namespace VacationManager.Services
 {
     public class InfoService
     {
-        private static readonly string connectionString = @"Data Source = localhost; Initial Catalog = VacationDB; Integrated Security = True;Encrypt=false";
+        private static readonly string connectionString = new DbService().connectionString;
         public List<Team>? GetAllTeams(string token)
         {
             List<Team> teams = new();

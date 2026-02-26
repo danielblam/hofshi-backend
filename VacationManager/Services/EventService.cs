@@ -9,7 +9,7 @@ namespace VacationManager.Services
 {
     public class EventService
     {
-        private static readonly string connectionString = @"Data Source = localhost; Initial Catalog = VacationDB; Integrated Security = True;Encrypt=false";
+        private static readonly string connectionString = new DbService().connectionString;
         public List<Event> GetAvailableEvents(string token)
         {
             List<Event> events = [];
