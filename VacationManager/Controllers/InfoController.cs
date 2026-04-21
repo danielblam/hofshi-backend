@@ -1,13 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using VacationManager.Models;
 using VacationManager.Services;
+using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Controllers
 {
     [Route("api/Info")]
     [ApiController]
-    public class InfoController : Controller
+    public class InfoController(AccountService _service, InfoService _info) : Controller
     {
+        private readonly AccountService service = _service;
+        private readonly InfoService info = _info;
+
+
         [HttpGet("Status")]
         public IActionResult Alive()
         {
@@ -17,13 +22,11 @@ namespace VacationManager.Controllers
         [HttpGet("Teams")]
         public IActionResult Get()
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!service.Authorize(token, Roles.USER)) return Unauthorized("No permission / Token expired");
 
-            InfoService info = new();
-            var teams = info.GetAllTeams(token);
-            if (teams == null) return Unauthorized("No permission / Token expired");
+            var teams = info.GetAllTeams();
 
             return Ok(teams);
         }
@@ -31,12 +34,11 @@ namespace VacationManager.Controllers
         [HttpGet("Name")]
         public IActionResult GetName(int userId)
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!service.Authorize(token, Roles.USER)) return Unauthorized("No permission / Token expired");
 
-            InfoService info = new();
-            var name = info.GetNameFromUserId(token, userId);
+            var name = info.GetNameFromUserId(userId);
             return Ok(name);
         }
 

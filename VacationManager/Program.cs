@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using VacationManager.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,18 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddAuthentication("Negotiate")
+    .AddNegotiate();
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<DbService>();
+builder.Services.AddScoped<EventService>();
+builder.Services.AddScoped<InfoService>();
+builder.Services.AddScoped<Utilities>();
+builder.Services.AddScoped<VacationService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -49,10 +62,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseCors("AllowAll");
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

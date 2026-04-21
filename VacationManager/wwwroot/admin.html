@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/admin.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@4.1.0/cdn.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
+    <script type="module" src="./scripts/utilities.js"></script>
+    <script type="module" src="./scripts/admin.js"></script>
+    <title>ניהול חופשות</title>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="position-relative text-white account-header p-2 px-4 rtl">
+                מחובר כ: <span class="account-header-name fw-bold"></span>
+                <button class="btn btn-secondary mx-3 fw-bold account-header-logout">התנתק</button>
+                <div class="position-absolute top-0 start-0 px-2 mt-2">
+                    <button class="btn btn-dark statistics-button"><svg xmlns="http://www.w3.org/2000/svg" width="28"
+                            height="28" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1z" />
+                        </svg></button>
+                </div>
+                <div class="position-absolute top-100 end-0 px-2 mt-1 text-black small-text">
+                    מקרא:
+                    <div class="d-flex mt-1">
+                        <div class="day-type-1 rounded ms-1 px-1">
+                            יום חופש
+                        </div>
+                        <div class="day-type-2 rounded ms-1 px-1">
+                            חצי יום חופש
+                        </div>
+                        <div class="day-type-3 rounded ms-1 px-1">
+                            יום בחירה
+                        </div>
+                        <div class="day-type-4 rounded ms-1 px-1">
+                            יום הצהרה
+                        </div>
+                        <div class="day-type-5 rounded ms-1 px-1 ">
+                            היעדרות צפויה
+                        </div>
+                        <div class="text-primary ms-1 px-1">
+                            חג
+                        </div>
+                        <div class="text-danger mx-1 fw-bold">
+                            אירוע
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row vh-100">
+
+            <div class="col-3 bg-secondary mh-100 bg-opacity-25 vacation-list-container rtl">
+                <div class="text-black text-end p-2 py-0">
+                    <div class="fw-bold my-3">
+                        <span class="vacation-list-team-name fs-5 text-decoration-underline"></span><br><br>
+                        חופשות בהמתנה
+                    </div>
+                    <div class="vacation-list-pending">
+                        <details>
+                            <summary class="my-2">
+                                05/12/2025 - 03/12/2025
+                            </summary>
+                            <div class="vacation-list-day day-type-1 rounded px-1 my-1">
+                                03/12/2025 - יום ד - יום חופש
+                            </div>
+                        </details>
+                    </div>
+                    <div class="fw-bold my-3">
+                        חופשות מאושרות
+                    </div>
+                    <div class="vacation-list-approved">
+                        <details>
+                            <summary class="my-2">
+                                05/12/2025 - 03/12/2025
+                            </summary>
+                            <div class="vacation-list-day day-type-1 rounded px-1 my-1">
+                                03/12/2025 - יום ד - יום חופש
+                            </div>
+                        </details>
+                    </div>
+                    <div class="fw-bold my-3">
+                        אירועים בצוות
+                    </div>
+                    <div class="events-list">
+                        <details>
+                            <summary>
+                                <span class="text-decoration-underline">אירוע דוגמה: 05/12/25 - 03/12/25</span>
+                            </summary>
+                            דוגמה לתיאור של האירוע
+                        </details>
+                    </div>
+                    <div class="fw-bold my-3">
+                        אירועים אחרים
+                    </div>
+                    <div class="other-events-list extra-bottom-padding">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-9 d-flex flex-column justify-content-top align-items-center mt-4">
+
+                <div class="calendar-navigation">
+                    <button class="btn btn-white p-1 previous-month">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                            class="bi bi-arrow-left-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-4.5-.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5z" />
+                        </svg>
+                    </button>
+                    <label class="calendar-navigation-label mx-2 py-1 text-center fw-bold border rounded">דצמבר
+                        2025</label>
+                    <button class="btn btn-white p-1 next-month">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                            class="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="position-relative calendar text-center w-90 mt-3">
+                    <table class="table table-bordered text-center rtl">
+                        <thead>
+                            <tr>
+                                <th class="col-1 bg-primary text-white">ראשון</th>
+                                <th class="col-1 bg-primary text-white">&nbsp;שני&nbsp;</th>
+                                <th class="col-1 bg-primary text-white">שלישי</th>
+                                <th class="col-1 bg-primary text-white">רביעי</th>
+                                <th class="col-1 bg-primary text-white">חמישי</th>
+                                <th class="col-1 bg-primary text-white">שישי</th>
+                                <th class="col-1 bg-primary text-white">&nbsp;שבת&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody class="calendar-body">
+                            <tr>
+                                <td>1</td>
+                                <td>2</td>
+                                <td>3</td>
+                                <td>4</td>
+                                <td>5</td>
+                                <td>6</td>
+                                <td>7<br>
+                                    <p class="fs-6 fw-normal mx-1">hi</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="position-absolute bottom-0 start-100">
+                        <button class="btn btn-primary p-1 mx-2 add-event-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                                class="bi bi-calendar-event" viewBox="0 0 16 16">
+                                <path
+                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                                <path
+                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="position-absolute bottom-0 start-100 translate-middle-y">
+                        <button class="btn btn-primary p-0 mx-2 request-vacation-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor"
+                                class="bi bi-plus" viewBox="0 0 16 16">
+                                <path
+                                    d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="request-vacation-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title text-end w-100 p-1">הוספת חופשה</h3>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body rtl">
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">תאריך התחלה <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">תאריך סיום <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">סוג חופשה <span class="text-danger">*</span></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <input class="fs-5 form-control vacation-parameter vacation-start" type="date">
+                        </div>
+                        <div class="col-4">
+                            <input class="fs-5 form-control vacation-parameter vacation-end" type="date">
+                        </div>
+                        <div class="col-4">
+                            <select class="fs-5 form-control vacation-parameter vacation-type">
+                                <option value="1">יום חופש</option>
+                                <option value="2">חצי יום חופש</option>
+                                <option value="3">יום בחירה</option>
+                                <option value="4">יום הצהרה</option>
+                                <option value="5">היעדרות צפויה</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <label class="fs-5 mb-2 vacation-user-title">עבור משתמש: <span
+                                    class="text-danger">*</span></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <select class="fs-5 form-select vacation-user">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vacation-days mt-4 mb-2">
+                        <div class="border p-2 rounded vacation-selection-info">
+                            בחרו תאריכי התחלה וסיום, ואת סוג החופשה.
+                        </div>
+                        <!--<div class="vacation-day p-1 d-flex border rounded fw-bold">
+                                <div class="col-3 p-1 ps-4">
+                                    22/12/2025 - יום ב
+                                </div>
+                                <select class="form-control">
+                                    <option>יום חופש</option>
+                                    <option>חצי יום חופש</option>
+                                    <option>יום בחירה</option>
+                                    <option>יום הצהרה</option>
+                                    <option>היעדרות צפויה</option>
+                                </select>
+                            </div>-->
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="request-vacation-modal-footer modal-footer">
+                    <button class="btn btn-primary disabled submit-request">הוספה</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="delete-vacation-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title text-end w-100 p-1">מחיקת חופשה</h3>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body rtl">
+                    למחוק את החופשה של <span class="delete-vacation-modal-name fw-bold"></span> בימים <span
+                        class="delete-vacation-modal-range fw-bold"></span>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="request-vacation-modal-footer modal-footer">
+                    <button class="btn btn-primary" data-bs-dismiss="modal">בטל</button>
+                    <button class="btn btn-outline-danger delete-vacation-modal-confirm">מחק</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="statistics-modal modal fade">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title text-end w-100 p-1">סטטיסטיקה</h3>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body rtl">
+                    <div class="fw-bold fs-5">
+                        הצגת ימי חופש לפי משתמש:
+                    </div>
+                    <input class="form-check-input mx-2" type="radio" name="stats-filter" value="1">
+                    <label>השנה</label>
+                    <input class="form-check-input mx-2" type="radio" name="stats-filter" value="0">
+                    <label>החודש</label>
+                    <!-- <div class="w-25 input-group my-2 ltr">
+                        <select class="form-select statistics-filter-select rtl">
+                            <option value="0">חודש</option>
+                            <option value="1">שנה</option>
+                        </select>
+                        <span class="input-group-text">...לחלק לפי</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-2">
+                            <select class="form-select stats-time-range">
+                                <option value="all">הכל</option>
+                            </select>
+                        </div>
+                    </div>
+                -->
+                    <div class="stats-month-nav my-2">
+                        <button class="btn btn-white p-1 stats-next-month">▶️</button>
+                        <label class="stats-month-label p-1 text-center border rounded">דצמבר 2025</label>
+                        <button class="btn btn-white p-1 stats-previous-month">◀️</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="statistics-chart" class="w-100"></canvas>
+                    </div>
+                    <div class="fw-bold fs-5">
+                        ניצול 5 ימי חופש רצופים השנה:
+                    </div>
+                    <div class="five-day-list d-flex flex-wrap">
+
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="add-event-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title add-event-modal-title text-end w-100 p-1">הוספת אירוע</h3>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body rtl">
+                    <label class="fs-5 mb-1">שם האירוע <span class="text-danger">*</span></label>
+                    <input type="text" class="add-event-name form-control" maxlength="100">
+                    <label class="text-secondary"><span class="add-event-name-length">0</span>/100</label>
+                    <br>
+                    <label class="fs-5 my-1">תיאור קצר</label>
+                    <textarea class="add-event-description form-control" rows="3" maxlength="500"></textarea>
+                    <label class="text-secondary"><span class="add-event-description-length">0</span>/500</label>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">תאריך התחלה <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">תאריך סיום <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="col-4">
+                            <label class="fs-5 mb-2">גישת צפייה <span class="text-danger">*</span></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <input class="fs-5 form-control event-parameter event-start" type="date">
+                        </div>
+                        <div class="col-4">
+                            <input class="fs-5 form-control event-parameter event-end" type="date">
+                        </div>
+                        <div class="col-4">
+                            <select class="fs-5 form-control event-is-public">
+                                <option value="0">צוות</option>
+                                <option value="1">כל הארגון</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <span class="text-danger event-fail">.חסר שם אירוע</span>
+                    <button class="btn btn-primary disabled submit-event">הוספה</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="delete-event-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title text-end w-100 p-1">מחיקת אירוע</h2>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body rtl">
+                    למחוק את האירוע <span class="delete-event-modal-name fw-bold"></span>?
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button class="btn btn-primary" data-bs-dismiss="modal">בטל</button>
+                    <button class="btn btn-outline-danger delete-event-modal-confirm">מחק</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="day-overview-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title day-overview-modal-title text-end w-100 p-1">27.01.2026 - יום חמישי</h2>
+                </div>
+                <div class="modal-body rtl">
+                    <div class="row">
+                        <div class="col-6">
+                            <h4 class="fw-bold">ימי חופש</h4>
+                            <div class="day-overview-modal-vacations mb-4">
+                                אין מה להציג...
+                            </div>
+                            <h4 class="fw-bold">חגים ואירועים</h4>
+                            <div class="day-overview-modal-holidays-events">
+                                אין מה להציג...
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="fw-bold">נוכחות צוות</h4>
+                            <div class="day-overview-modal-team-members">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

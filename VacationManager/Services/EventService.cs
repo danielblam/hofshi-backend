@@ -7,20 +7,20 @@ using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Services
 {
-    public class EventService
+    public class EventService(IConfiguration config, AccountService _service, InfoService _info)
     {
-        private static readonly string connectionString = new DbService().connectionString;
-        public List<Event> GetAvailableEvents(string token)
+        private readonly string connectionString = config.GetConnectionString("DefaultConnection");
+        private readonly AccountService service = _service;
+        private readonly InfoService info = _info;
+
+        public List<Event> GetAvailableEvents(int userId)
         {
             List<Event> events = [];
 
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            AccountService service = new();
-            InfoService info = new();
-            if (!service.Authorize(token, Roles.USER)) return null;
-            int teamId = (int)info.GetSelfInfo(token).TeamId;
+            int teamId = (int)info.GetSelfInfo(userId).TeamId;
 
             SqlCommand command = new($"SELECT * FROM Events WHERE TeamId = @teamId OR IsPublic = 1", sqlCon);
             command.Parameters.AddWithValue("@teamId", teamId);
@@ -42,16 +42,12 @@ namespace VacationManager.Services
             }
             return events;
         }
-        public int AddNewEvent(string token, Event evt)
+        public int AddNewEvent(int userId, Event evt)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.ADMIN)) return -1;
-
-            InfoService info = new();
-            int teamId = (int)info.GetSelfInfo(token).TeamId;
+            int teamId = (int)info.GetSelfInfo(userId).TeamId;
 
             SqlCommand command = new($"INSERT INTO Events (Name, Description, TeamId, StartDate, EndDate, IsPublic) " +
                 $"VALUES (@name, @description, @teamId, @startDate, @endDate, @isPublic)", sqlCon);
@@ -65,16 +61,12 @@ namespace VacationManager.Services
             command.ExecuteNonQuery();
             return 0;
         }
-        public int UpdateEvent(string token, int eventId, Event evt)
+        public int UpdateEvent(int userId, int eventId, Event evt)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.ADMIN)) return -1;
-
-            InfoService info = new();
-            int teamId = (int)info.GetSelfInfo(token).TeamId;
+            int teamId = (int)info.GetSelfInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;
@@ -92,16 +84,12 @@ namespace VacationManager.Services
             command.ExecuteNonQuery();
             return 0;
         }
-        public int DeleteEvent(string token, int eventId)
+        public int DeleteEvent(int userId, int eventId)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.ADMIN)) return -1;
-
-            InfoService info = new();
-            int teamId = (int)info.GetSelfInfo(token).TeamId;
+            int teamId = (int)info.GetSelfInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;

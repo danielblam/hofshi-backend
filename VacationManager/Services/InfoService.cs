@@ -4,18 +4,15 @@ using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Services
 {
-    public class InfoService
+    public class InfoService(IConfiguration config)
     {
-        private static readonly string connectionString = new DbService().connectionString;
-        public List<Team>? GetAllTeams(string token)
+        private readonly string connectionString = config.GetConnectionString("DefaultConnection");
+        public List<Team>? GetAllTeams()
         {
             List<Team> teams = new();
             using (SqlConnection sqlCon = new(connectionString))
             {
                 sqlCon.Open();
-
-                AccountService service = new();
-                if (!service.Authorize(token, Roles.USER)) return null;
 
                 SqlCommand command = new($"SELECT * FROM Teams", sqlCon);
 
@@ -34,13 +31,10 @@ namespace VacationManager.Services
             return teams;
         }
 
-        public string GetNameFromUserId(string token, int userId)
+        public string GetNameFromUserId(int userId)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.USER)) return null;
 
             SqlCommand command = new($"SELECT * FROM Users WHERE UserId = @userId");
             command.Parameters.AddWithValue("@userId", userId);
@@ -55,14 +49,10 @@ namespace VacationManager.Services
             return null;
         }
 
-        public User GetSelfInfo(string token)
+        public User GetSelfInfo(int userId)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.USER)) return null;
-            int userId = service.GetUserIdFromToken(token);
 
             SqlCommand command = new($"SELECT * FROM Users WHERE UserId = @userId", sqlCon);
             command.Parameters.AddWithValue("@userId", userId);

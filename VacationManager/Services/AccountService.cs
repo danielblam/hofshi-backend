@@ -11,10 +11,13 @@ using VacationManager.Models;
 namespace VacationManager.Services
 {
     
-    public class AccountService
+    public class AccountService(IConfiguration config, InfoService _info, Utilities _utils)
     {
-        private static readonly string connectionString = new DbService().connectionString;
+        private readonly string connectionString = config.GetConnectionString("DefaultConnection");
         private static readonly string salt = "2ePqYskKoji4lpDU94EoGzDiVCggPJVQ";
+        private readonly InfoService info = _info;
+        private readonly Utilities utils = _utils;
+
         public enum Roles
         {
             USER = 1,
@@ -104,14 +107,12 @@ namespace VacationManager.Services
             return false;
         }
 
-        public List<User>? GetAllUsers(string token)
+        public List<User>? GetAllUsers()
         {
             List<User> users = new();
             using (SqlConnection sqlCon = new(connectionString))
             {
                 sqlCon.Open();
-
-                if (!Authorize(token, Roles.SUPERADMIN)) return null;
 
                 SqlCommand command = new($"SELECT * FROM Users", sqlCon);
 
@@ -135,12 +136,10 @@ namespace VacationManager.Services
 
         }
 
-        public int CreateAccount(string token, User user)
+        public int CreateAccount(User user)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            if (!Authorize(token, Roles.SUPERADMIN)) return -1;
 
             SqlCommand check = new($"SELECT * FROM Users WHERE Email = @email", sqlCon);
             check.Parameters.AddWithValue("@email", user.Email);
@@ -168,16 +167,13 @@ namespace VacationManager.Services
         
         public string HashPassword(string password)
         {
-            Utilities service = new();
-            return service.Sha256(password+salt);
+            return utils.Sha256(password+salt);
         }
 
-        public int UpdateAccount(string token, long userId, User details)
+        public int UpdateAccount(long userId, User details)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            if (!Authorize(token, Roles.SUPERADMIN)) return -1;
 
             List<string> updatables = new();
             if (details.FirstName != null) updatables.Add($"FirstName = N'{details.FirstName}'");
@@ -206,8 +202,6 @@ namespace VacationManager.Services
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            if (!Authorize(token, Roles.SUPERADMIN)) return -1;
 
             int superAdminUserId = GetUserIdFromToken(token);
             if (userId == superAdminUserId) return -2;
@@ -299,17 +293,14 @@ namespace VacationManager.Services
             }
         }
 
-        public List<User> GetTeamUsers(string token)
+        public List<User> GetTeamUsers(int userId)
         {
             List<User> users = new();
             using (SqlConnection sqlCon = new(connectionString))
             {
                 sqlCon.Open();
 
-                if (!Authorize(token, Roles.ADMIN)) return null;
-
-                InfoService info = new();
-                int teamId = (int)info.GetSelfInfo(token).TeamId;
+                int teamId = (int)info.GetSelfInfo(userId).TeamId;
 
                 SqlCommand command = new($"SELECT * FROM Users WHERE TeamId = @teamId", sqlCon);
                 command.Parameters.AddWithValue("@teamId", teamId);

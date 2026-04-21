@@ -5,22 +5,19 @@ using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Services
 {
-    public class VacationService
+    public class VacationService(IConfiguration config, Utilities _utils)
     {
-        private static readonly string connectionString = new DbService().connectionString;
-        public List<VacationDetails> GetVacationsByTeamId(string token, int teamId)
+        private readonly string connectionString = config.GetConnectionString("DefaultConnection");
+        private readonly Utilities utils = _utils;
+        public List<VacationDetails> GetVacationsByTeamId(int teamId)
         {
             List<VacationDetails> vacations = [];
             using (SqlConnection sqlCon = new(connectionString))
             {
                 sqlCon.Open();
 
-                AccountService service = new();
-                if (!service.Authorize(token, Roles.ADMIN)) return null;
-
                 SqlCommand command = new($"SELECT * FROM Vacations", sqlCon);
 
-                Utilities utils = new();
                 List<int> teamUsers = utils.GetUserIdsByTeamId(teamId);
 
                 using SqlDataReader reader = command.ExecuteReader();
@@ -52,18 +49,12 @@ namespace VacationManager.Services
             return vacations;
         }
 
-        public List<VacationDetails> GetVacationsByUserId(string token, int userId)
+        public List<VacationDetails> GetVacationsByUserId(int userId)
         {
             List<VacationDetails> vacations = [];
             using (SqlConnection sqlCon = new(connectionString))
             {
                 sqlCon.Open();
-
-                AccountService service = new();
-                Utilities utils = new();
-
-                if (!service.Authorize(token, Roles.ADMIN) 
-                    && service.GetUserIdFromToken(token) != userId) return null;
 
                 SqlCommand command = new($"SELECT * FROM Vacations WHERE UserId = @userId", sqlCon);
                 command.Parameters.AddWithValue("@userId", userId);
@@ -93,15 +84,10 @@ namespace VacationManager.Services
             return vacations;
         }
         
-        public int RequestNewVacation(string token, VacationRequest request)
+        public int RequestNewVacation(int userId, VacationRequest request)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.USER)) return -1;
-
-            int userId = service.GetUserIdFromToken(token);
 
             SqlCommand command = new($"INSERT INTO Vacations (UserId, StartDate, EndDate, Status) VALUES (@userId, @startDate, @endDate, 0);" +
                 $"SELECT SCOPE_IDENTITY();", sqlCon);
@@ -123,13 +109,10 @@ namespace VacationManager.Services
             return 0;
         }
 
-        public int AddNewVacation(string token, int userId, VacationRequest request)
+        public int AddNewVacation(int userId, VacationRequest request)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.ADMIN)) return -1;
 
             SqlCommand command = new($"INSERT INTO Vacations (UserId, StartDate, EndDate, Status) VALUES (@userId, @startDate, @endDate, 1);" +
                 $"SELECT SCOPE_IDENTITY();", sqlCon);
@@ -151,18 +134,14 @@ namespace VacationManager.Services
             return 0;
         }
 
-        public int ResolveVacationRequest(string token, int vacationId, List<bool> approveList)
+        public int ResolveVacationRequest(int resolverUserId, int vacationId, List<bool> approveList)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            AccountService service = new();
-            if (!service.Authorize(token, Roles.ADMIN)) return -1;
-
-            Utilities util = new();
             //if (!util.TableHasRows("Vacations")) return -2; // ??? Why was this a thing??
 
-            List<VacationDay> vacationDays = util.GetVacationDays(vacationId);
+            List<VacationDay> vacationDays = utils.GetVacationDays(vacationId);
             if (approveList.Count != vacationDays.Count) return -3;
 
             bool statusFlag = true;
@@ -181,7 +160,7 @@ namespace VacationManager.Services
 
             SqlCommand command1 = new($"UPDATE Vacations SET Status = @status, ResolvedBy = @resolvedBy WHERE VacationId = @vacationId", sqlCon);
             command1.Parameters.AddWithValue("@status", statusFlag ? 1 : -1);
-            command1.Parameters.AddWithValue("@resolvedBy", service.GetUserIdFromToken(token));
+            command1.Parameters.AddWithValue("@resolvedBy", resolverUserId);
             command1.Parameters.AddWithValue("@vacationId", vacationId);
 
             command1.ExecuteNonQuery();
@@ -189,15 +168,10 @@ namespace VacationManager.Services
             return 0;
         }
 
-        public int DeleteVacationRequest(string token, int vacationId)
+        public int DeleteVacationRequest(int vacationId)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            Utilities utils = new();
-            if (!service.Authorize(token, Roles.ADMIN) 
-                && service.GetUserIdFromToken(token) != utils.GetUserIdFromVacationId(vacationId)) return -1;
 
             SqlCommand command = new($"DELETE FROM Vacations WHERE VacationId = @vacationId", sqlCon);
             command.Parameters.AddWithValue("@vacationId", vacationId);
@@ -212,15 +186,10 @@ namespace VacationManager.Services
             return 0;
         }
 
-        public int EditVacationRequest(string token, int vacationId, VacationRequest details)
+        public int EditVacationRequest(int vacationId, VacationRequest details)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
-
-            AccountService service = new();
-            Utilities utils = new();
-            if (!service.Authorize(token, Roles.ADMIN)
-                && service.GetUserIdFromToken(token) != utils.GetUserIdFromVacationId(vacationId)) return -1;
 
             SqlCommand command1 = new($"DELETE FROM VacationDays WHERE VacationId = @vacationId", sqlCon);
             command1.Parameters.AddWithValue("@vacationId", vacationId);

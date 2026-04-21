@@ -6,9 +6,9 @@ using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Services
 {
-    public class Utilities
+    public class Utilities(IConfiguration config)
     {
-        private static readonly string connectionString = new DbService().connectionString;
+        private readonly string connectionString = config.GetConnectionString("DefaultConnection");
         public string GenerateToken()
         {
             Random rng = new();

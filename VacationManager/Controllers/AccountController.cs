@@ -1,19 +1,36 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using System.Diagnostics;
 using VacationManager.Models;
 using VacationManager.Services;
+using static VacationManager.Services.AccountService;
 
 namespace VacationManager.Controllers
 {
     [Route("api/Accounts")]
     [ApiController]
-    public class AccountController : Controller
+    public class AccountController(AccountService _service, InfoService _info, Utilities _utils) : Controller
     {
+        private readonly AccountService service = _service;
+        private readonly InfoService info = _info;
+        private readonly Utilities utils = _utils;
+
+        [HttpGet("Test")]
+        public IActionResult IdentityTest()
+        {
+            string user = User.Identity?.Name;
+
+            Debug.WriteLine("USER: " + user);
+            Debug.WriteLine(user == null);
+
+            return Ok(user);
+        }
+
+
         [HttpGet("Ping")]
         public IActionResult Ping()
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
 
@@ -27,20 +44,19 @@ namespace VacationManager.Controllers
         [HttpPost("Login")]
         public IActionResult Login(LoginDetails details)
         {
-            AccountService service = new();
             var userId = service.LogIn(details);
             switch (userId)
             {
                 case -1: return Unauthorized("Incorrect password.");
                 case -2: return NotFound("No account with this username.");
             }
-            var token = (new Utilities()).GenerateToken();
+
+            var token = utils.GenerateToken();
             var role = service.GetRoleFromUserId(userId);
 
             service.SaveToken(userId, token);
 
-            InfoService info = new();
-            var user = info.GetSelfInfo(token);
+            var user = info.GetSelfInfo(userId);
             var teamName = info.GetTeamName((int)user.TeamId);
 
             LoginResponse response = new()
@@ -55,11 +71,11 @@ namespace VacationManager.Controllers
         [HttpGet("SuperAdmin/Get")]
         public IActionResult GetUsers()
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
-            var users = service.GetAllUsers(token);
-            if (users == null) return Unauthorized("No permission / Token expired");
+            if (!service.Authorize(token, Roles.SUPERADMIN)) return Unauthorized("No permission, or expired token.");
+
+            var users = service.GetAllUsers();
 
             return Ok(users);
 
@@ -68,11 +84,12 @@ namespace VacationManager.Controllers
         [HttpPost("SuperAdmin/Create")]
         public IActionResult AddAccount(User details)
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
 
-            var newUserId = service.CreateAccount(token, details);
+            if (!service.Authorize(token, Roles.ADMIN)) return Unauthorized("No permission, or expired token.");
+
+            var newUserId = service.CreateAccount(details);
             switch (newUserId)
             {
                 case -1: return Unauthorized("Insufficient credentials!");
@@ -86,11 +103,11 @@ namespace VacationManager.Controllers
         {
             //if (userId != details.UserId && details.UserId != null) return BadRequest("Unclear request, what user are you updating?");
 
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!service.Authorize(token, Roles.ADMIN)) return Unauthorized("No permission, or expired token.");
 
-            var result = service.UpdateAccount(token, userId, details);
+            var result = service.UpdateAccount(userId, details);
             switch (result)
             {
                 case -1: return Unauthorized("Insufficient credentials!");
@@ -103,7 +120,6 @@ namespace VacationManager.Controllers
         [HttpDelete("SuperAdmin/Delete/{userId}")]
         public IActionResult DeleteAccount(int userId)
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
 
@@ -119,11 +135,13 @@ namespace VacationManager.Controllers
         [HttpGet("Admin/Get")]
         public IActionResult GetBySelfTeam()
         {
-            AccountService service = new();
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!service.Authorize(token, Roles.ADMIN)) return Unauthorized("No permission, or expired token.");
 
-            var users = service.GetTeamUsers(token);
+            int userId = service.GetUserIdFromToken(token);
+
+            var users = service.GetTeamUsers(userId);
             if (users == null) return Unauthorized("No permission / Token expired");
 
             return Ok(users);

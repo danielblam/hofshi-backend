@@ -2,6 +2,11 @@
 {
     public class DbService
     {
-        public string connectionString = @"Data Source = localhost; Initial Catalog = VacationDB; Integrated Security = True;Encrypt=false";
+        public string connectionString;
+
+        public DbService(IConfiguration config)
+        {
+            connectionString = config.GetConnectionString("DefaultConnection");
+        }
     }
 }

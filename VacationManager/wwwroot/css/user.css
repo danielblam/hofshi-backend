@@ -1,0 +1,71 @@
+body {
+    height:100%;
+    overflow: hidden;
+}
+
+.calendar-navigation-label {
+    width: 8rem
+}
+
+.calendar > table > tbody > tr > td {
+    height:120px;
+    text-align: start;
+    font-weight:bold;
+    font-size:100%;
+    padding-top:0px;
+    padding-right:6px;
+}
+
+.heb-date {
+    font-size:80%;
+}
+
+.vacation-day[data-day-type*="1"], .day-type-1 {
+    background-color:#93EBF7;
+}
+
+.vacation-day[data-day-type*="2"], .day-type-2 {
+    background-color:#5BFB9C;
+}
+
+.vacation-day[data-day-type*="3"], .day-type-3 {
+    background-color:#FF99FF;
+}
+
+.vacation-day[data-day-type*="4"], .day-type-4 {
+    background-color:#bb88ff;
+}
+
+.vacation-day[data-day-type*="5"], .day-type-5 {
+    background-color:#ffcccc;
+}
+
+.vacation-day:hover, .vacation-list-day {
+    border:solid 1px black;
+}
+
+.vacation-day-type:hover {
+    cursor:pointer;
+}
+
+.vacation-list-container {
+    overflow-y:scroll;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.4) transparent;
+}
+
+tbody > tr > td > div {
+    height:100%;
+}
+
+.w-90 {
+    width:90%;
+}
+
+td:hover {
+    outline: solid 1px black;
+}
+
+.extra-bottom-padding {
+    padding-bottom:100px;
+}
