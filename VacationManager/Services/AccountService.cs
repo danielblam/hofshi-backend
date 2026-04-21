@@ -42,6 +42,22 @@ namespace VacationManager.Services
             }
             return -2; // Username doesn't exist, so the while block is never entered
         }
+
+        public int WindowsAuthLogIn(string name)
+        {
+            using SqlConnection sqlCon = new(connectionString);
+            SqlCommand command = new($"SELECT * FROM Users WHERE Email = @email", sqlCon);
+            command.Parameters.AddWithValue("@email", name);
+
+            sqlCon.Open();
+            using SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                int userId = reader.GetInt32(0);
+                return userId;
+            }
+            return -1;
+        }
         public int GetRoleFromUserId(int userId)
         {
             SqlConnection sqlCon = new(connectionString);
@@ -136,7 +152,7 @@ namespace VacationManager.Services
 
         }
 
-        public int CreateAccount(User user)
+        public int CreateAccount(User user, bool isWindowsAuth = false)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
@@ -149,7 +165,7 @@ namespace VacationManager.Services
                 if (reader.HasRows) return -2;
             }
 
-            string hashedpassword = HashPassword(user.Password);
+            string hashedpassword = isWindowsAuth ? "-" : HashPassword(user.Password);
 
             SqlCommand command = new(
                 $"INSERT INTO Users (FirstName, LastName, Email, PasswordHash, Role, TeamId, IsActive) VALUES (@firstName, @lastName, @email, @passwordHash, @role, @teamId, 1);" +

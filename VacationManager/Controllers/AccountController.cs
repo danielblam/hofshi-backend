@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Diagnostics;
@@ -39,6 +40,17 @@ namespace VacationManager.Controllers
             {
                 return Unauthorized();
             }
+        }
+
+        [Authorize]
+        [HttpGet("TryWindowsAuth")]
+        public IActionResult TryWindowsAuth()
+        {
+            string user = User.Identity?.Name;
+            if (user == null) return BadRequest("User is null.");
+
+            var userId = service.WindowsAuthLogIn(user);
+            return Ok(user);
         }
 
         [HttpPost("Login")]
