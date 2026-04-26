@@ -20,7 +20,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int teamId = (int)info.GetSelfInfo(userId).TeamId;
+            int teamId = info.GetSelfInfo(userId).TeamId == null ? -1 : (int)info.GetSelfInfo(userId).TeamId;
 
             SqlCommand command = new($"SELECT * FROM Events WHERE TeamId = @teamId OR IsPublic = 1", sqlCon);
             command.Parameters.AddWithValue("@teamId", teamId);
@@ -47,13 +47,13 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int teamId = (int)info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
 
             SqlCommand command = new($"INSERT INTO Events (Name, Description, TeamId, StartDate, EndDate, IsPublic) " +
                 $"VALUES (@name, @description, @teamId, @startDate, @endDate, @isPublic)", sqlCon);
             command.Parameters.Add("@name", SqlDbType.NVarChar, 100).Value = evt.Name; // this is supposedly better for performance? sure, i guess.
             command.Parameters.Add("@description", SqlDbType.NVarChar, 500).Value = evt.Description; // whatever
-            command.Parameters.AddWithValue("@teamId", teamId);
+            command.Parameters.AddWithValue("@teamId", teamId ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@startDate", evt.StartDate);
             command.Parameters.AddWithValue("@endDate", evt.EndDate);
             command.Parameters.AddWithValue("@isPublic", evt.IsPublic);
@@ -66,7 +66,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int teamId = (int)info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;
@@ -89,7 +89,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int teamId = (int)info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;
@@ -117,7 +117,7 @@ namespace VacationManager.Services
                     EventId = reader.GetInt32(0),
                     Name = reader.IsDBNull(1) ? null : reader.GetString(1),
                     Description = reader.IsDBNull(2) ? null : reader.GetString(2),
-                    TeamId = reader.GetInt32(3),
+                    TeamId = reader.IsDBNull(3) ? null : reader.GetInt32(3),
                     StartDate = reader.GetFieldValue<DateOnly>(4),
                     EndDate = reader.GetFieldValue<DateOnly>(5),
                     IsPublic = reader.GetBoolean(6)

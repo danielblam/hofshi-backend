@@ -117,8 +117,10 @@ namespace VacationManager.Services
             using SqlDataReader users = command2.ExecuteReader();
             if (!users.HasRows) return false;
             users.Read();
+            bool isactive = users.GetBoolean(7);
             int role = users.GetInt32(5);
 
+            if (!isactive) return false;
             if (role >= (int)requiredRole) return true;
             return false;
         }
@@ -175,7 +177,7 @@ namespace VacationManager.Services
             command.Parameters.AddWithValue("@email", user.Email);
             command.Parameters.AddWithValue("@passwordHash", hashedpassword);
             command.Parameters.AddWithValue("@role", user.Role);
-            command.Parameters.AddWithValue("@teamId", user.TeamId);
+            command.Parameters.AddWithValue("@teamId", user.TeamId ?? (object)DBNull.Value);
 
             int newUserID = int.Parse(command.ExecuteScalar().ToString());
             return newUserID;

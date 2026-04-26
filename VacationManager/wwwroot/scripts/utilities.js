@@ -3,6 +3,7 @@ function getToken() {
 }
 
 const url = `/api`
+// const url = `https://localhost:7079/api`
 
 async function ping(token) {
     const request = new Request(`${url}/Accounts/Ping`, {

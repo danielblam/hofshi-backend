@@ -43,14 +43,55 @@ namespace VacationManager.Controllers
         }
 
         [Authorize]
+        [HttpGet("debug-user")]
+        public IActionResult DebugUser()
+        {
+            var claims = User.Claims.Select(c => new {
+                c.Type,
+                c.Value
+            });
+
+            return Ok(claims);
+        }
+
+        [Authorize]
         [HttpGet("TryWindowsAuth")]
         public IActionResult TryWindowsAuth()
         {
-            string user = User.Identity?.Name;
-            if (user == null) return BadRequest("User is null.");
+            if (User.Identity?.Name == null) return BadRequest("User is null.");
+            string name = User.Identity?.Name;
 
-            var userId = service.WindowsAuthLogIn(user);
-            return Ok(user);
+            var userId = service.WindowsAuthLogIn(name);
+            if(userId == -1)
+            {
+                userId = service.CreateAccount(new User()
+                {
+                    UserId = null,
+                    FirstName = name,
+                    LastName = "",
+                    Email = name,
+                    Password = null,
+                    Role = 1,
+                    TeamId = null,
+                    IsActive = true
+                }, true);
+            }
+
+            var token = utils.GenerateToken();
+            var role = service.GetRoleFromUserId(userId);
+
+            service.SaveToken(userId, token);
+
+            var user = info.GetSelfInfo(userId);
+            var teamName = user.TeamId == null ? "-" : info.GetTeamName((int)user.TeamId);
+
+            LoginResponse response = new()
+            {
+                Token = token,
+                User = user,
+                TeamName = teamName
+            };
+            return Ok(response);
         }
 
         [HttpPost("Login")]
@@ -69,7 +110,7 @@ namespace VacationManager.Controllers
             service.SaveToken(userId, token);
 
             var user = info.GetSelfInfo(userId);
-            var teamName = info.GetTeamName((int)user.TeamId);
+            var teamName = user.TeamId == null ? "-" : info.GetTeamName((int)user.TeamId);
 
             LoginResponse response = new()
             {

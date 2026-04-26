@@ -1,7 +1,14 @@
 import { ping, url } from "./utilities.js"
 
-async function logIn(email, password) {
-    const request = new Request(`${url}/Accounts/Login`, {
+async function logIn(email, password, windowsAuth = false) {
+    console.log(windowsAuth)
+    const request = windowsAuth ? 
+    new Request(`${url}/Accounts/TryWindowsAuth`, {
+        method: "GET",
+        credentials: "include"
+    })
+    : 
+    new Request(`${url}/Accounts/Login`, {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: `{"email":"${email}","password":"${password}"}`
@@ -70,15 +77,22 @@ async function tryPing(token) {
     return response.ok
 }
 
+console.log("Yeah this is a script")
+console.log(typeof $)
+
 $(document).ready(async function () {
 
-    let token = localStorage.getItem("token")
-    if (token != null) {
-        if(await tryPing(token)) {
-            let role = JSON.parse(localStorage.getItem("user")).role
-            redirect(role)
-        }
-    }
+
+    console.log("HELLO IM HERE")
+    logIn("","",true)
+
+    // let token = localStorage.getItem("token")
+    // if (token != null) {
+    //     if(await tryPing(token)) {
+    //         let role = JSON.parse(localStorage.getItem("user")).role
+    //         redirect(role)
+    //     }
+    // }
 
     $(".log-in-button").click(function () {
         let email = $(".login-email").val()

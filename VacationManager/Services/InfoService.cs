@@ -69,7 +69,7 @@ namespace VacationManager.Services
                     Email = reader.GetString(3),
                     Password = null,
                     Role = reader.GetInt32(5),
-                    TeamId = reader.GetInt32(6),
+                    TeamId = reader.IsDBNull(6) ? null : reader.GetInt32(6),
                     IsActive = reader.GetBoolean(7)
                 };
             }
