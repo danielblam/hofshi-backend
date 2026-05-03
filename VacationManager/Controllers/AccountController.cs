@@ -85,8 +85,8 @@ namespace VacationManager.Controllers
             int createRole = -1;
             string domain = "CARMEL";
             if (User.IsInRole($"{domain}\\HofshiUser")) createRole = 1;
-            else if (User.IsInRole($"{domain}\\HofshiAdmin")) createRole = 10;
-            else if (User.IsInRole($"{domain}\\HofshiSuperAdmin")) createRole = 20;
+            if (User.IsInRole($"{domain}\\HofshiAdmin")) createRole = 10;
+            if (User.IsInRole($"{domain}\\HofshiSuperAdmin")) createRole = 20;
 
             if (createRole < 0) return Unauthorized("אין לך גישה למערכת .");
 
