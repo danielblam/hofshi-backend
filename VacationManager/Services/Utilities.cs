@@ -16,7 +16,7 @@ namespace VacationManager.Services
             string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; // is there an easier way to do this? probably not
             for (int i = 0; i < 32; i++)
             {
-                token += characters[rng.Next(characters.Length)];
+                token += characters[RandomNumberGenerator.GetInt32(characters.Length)];
             }
             return token;
         }

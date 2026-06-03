@@ -1,5 +1,6 @@
 using Microsoft.OpenApi.Models;
 using VacationManager.Services;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,16 +34,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-    });
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAll", builder =>
+//    {
+//        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+//    });
+//});
 
-builder.Services.AddAuthentication("Negotiate")
-    .AddNegotiate();
+//builder.Services.AddAuthentication("Negotiate").AddNegotiate();
+builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
 
 builder.Services.AddAuthorization();
 
@@ -65,7 +66,7 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.UseCors("AllowAll");
+//app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();
