@@ -1,6 +1,8 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Primitives;
 using System.Diagnostics;
+using System.DirectoryServices.AccountManagement;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Security.Cryptography;
@@ -58,6 +60,8 @@ namespace VacationManager.Services
             }
             return -1;
         }
+
+        
         public int GetRoleFromUserId(int userId)
         {
             SqlConnection sqlCon = new(connectionString);
@@ -318,7 +322,7 @@ namespace VacationManager.Services
             {
                 sqlCon.Open();
 
-                int teamId = (int)info.GetSelfInfo(userId).TeamId;
+                int teamId = (int)info.GetUserInfo(userId).TeamId;
 
                 SqlCommand command = new($"SELECT * FROM Users WHERE TeamId = @teamId", sqlCon);
                 command.Parameters.AddWithValue("@teamId", teamId);

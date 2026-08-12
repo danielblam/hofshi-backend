@@ -1,18 +1,18 @@
 import { ping, url } from "./utilities.js"
 
 async function logIn(email, password, windowsAuth = false) {
-    console.log(windowsAuth)
-    const request = windowsAuth ? 
-    new Request(`${url}/Accounts/TryWindowsAuth`, {
-        method: "GET",
-        credentials: "include"
-    })
-    : 
-    new Request(`${url}/Accounts/Login`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: `{"email":"${email}","password":"${password}"}`
-    })
+    const request = windowsAuth ?
+        new Request(`${url}/Accounts/TryWindowsAuth`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+            credentials: "include"
+        })
+        :
+        new Request(`${url}/Accounts/Login`, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: `{"email":"${email}","password":"${password}"}`
+        })
     try {
         var response = await fetch(request)
     }
@@ -37,6 +37,8 @@ async function logIn(email, password, windowsAuth = false) {
         case 401:
         case 404:
             $(".fail-text").html(await response.text())
+            break
+        case 403: // windows auth is disabled on the backend - do nothing
             break
     }
 }
@@ -77,14 +79,9 @@ async function tryPing(token) {
     return response.ok
 }
 
-console.log("Yeah this is a script")
-console.log(typeof $)
-
 $(document).ready(async function () {
 
-
-    console.log("HELLO IM HERE")
-    logIn("","",true)
+    logIn("", "", true)
 
     // let token = localStorage.getItem("token")
     // if (token != null) {

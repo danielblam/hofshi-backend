@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using VacationManager.Models;
 using VacationManager.Services;
 using static VacationManager.Services.AccountService;
@@ -7,10 +8,11 @@ namespace VacationManager.Controllers
 {
     [Route("api/Events")]
     [ApiController]
-    public class EventController(AccountService _service, EventService _eventService) : Controller
+    public class EventController(AccountService _service, EventService _eventService, IHubContext<NotificationsHub> _hub) : Controller
     {
         public readonly AccountService service = _service;
         public readonly EventService eventService = _eventService;
+        private readonly IHubContext<NotificationsHub> hub = _hub;  
 
 
         [HttpGet]
@@ -25,7 +27,7 @@ namespace VacationManager.Controllers
             return Ok(events);
         }
         [HttpPost]
-        public IActionResult Add(Event evt)
+        public async Task<IActionResult> Add(Event evt)
         {
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
@@ -33,10 +35,12 @@ namespace VacationManager.Controllers
 
             int userId = service.GetUserIdFromToken(token);
             var result = eventService.AddNewEvent(userId, evt);
+
+            await hub.Clients.All.SendAsync("EventsChanged");
             return Ok();
         }
         [HttpPut("{eventId}")]
-        public IActionResult Update(int eventId, Event evt)
+        public async Task<IActionResult> Update(int eventId, Event evt)
         {
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
@@ -49,10 +53,12 @@ namespace VacationManager.Controllers
             {
                 case -2: return Forbid("Can't edit a different team's event.");
             }
+
+            await hub.Clients.All.SendAsync("EventsChanged");
             return Ok();
         }
         [HttpDelete("{eventId}")]
-        public IActionResult Delete(int eventId)
+        public async Task<IActionResult> Delete(int eventId)
         {
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
@@ -65,6 +71,8 @@ namespace VacationManager.Controllers
             {
                 case -2: return Forbid("Can't delete a different team's event.");
             }
+
+            await hub.Clients.All.SendAsync("EventsChanged");
             return NoContent();
         }
     }

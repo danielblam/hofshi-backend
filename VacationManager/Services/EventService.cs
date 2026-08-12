@@ -20,7 +20,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int teamId = info.GetSelfInfo(userId).TeamId == null ? -1 : (int)info.GetSelfInfo(userId).TeamId;
+            int teamId = info.GetUserInfo(userId).TeamId == null ? -1 : (int)info.GetUserInfo(userId).TeamId;
 
             SqlCommand command = new($"SELECT * FROM Events WHERE TeamId = @teamId OR IsPublic = 1", sqlCon);
             command.Parameters.AddWithValue("@teamId", teamId);
@@ -47,7 +47,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetUserInfo(userId).TeamId == null ? null : info.GetUserInfo(userId).TeamId;
 
             SqlCommand command = new($"INSERT INTO Events (Name, Description, TeamId, StartDate, EndDate, IsPublic) " +
                 $"VALUES (@name, @description, @teamId, @startDate, @endDate, @isPublic)", sqlCon);
@@ -66,7 +66,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetUserInfo(userId).TeamId == null ? null : info.GetUserInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;
@@ -89,7 +89,7 @@ namespace VacationManager.Services
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
 
-            int? teamId = info.GetSelfInfo(userId).TeamId == null ? null : info.GetSelfInfo(userId).TeamId;
+            int? teamId = info.GetUserInfo(userId).TeamId == null ? null : info.GetUserInfo(userId).TeamId;
 
             Event thisEvent = GetEventById(eventId);
             if (thisEvent.TeamId != teamId) return -2;

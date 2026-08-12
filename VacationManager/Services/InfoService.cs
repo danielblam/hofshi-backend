@@ -49,7 +49,7 @@ namespace VacationManager.Services
             return null;
         }
 
-        public User GetSelfInfo(int userId)
+        public User GetUserInfo(int userId)
         {
             using SqlConnection sqlCon = new(connectionString);
             sqlCon.Open();
@@ -91,6 +91,35 @@ namespace VacationManager.Services
                 return reader.GetString(1);
             }
             return null;
+        }
+
+        public List<User> GetTeamManagers(int teamId)
+        {
+            List<User> users = [];
+
+            using SqlConnection sqlCon = new(connectionString);
+            sqlCon.Open();
+
+            SqlCommand command = new($"SELECT * FROM Users WHERE TeamId = @teamId AND Role >= 10", sqlCon);
+            command.Parameters.AddWithValue("@teamId", teamId);
+
+            using SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                users.Add(new User()
+                {
+                    UserId = reader.GetInt32(0),
+                    FirstName = reader.GetString(1),
+                    LastName = reader.GetString(2),
+                    Email = reader.GetString(3),
+                    Password = null,
+                    Role = reader.GetInt32(5),
+                    TeamId = reader.IsDBNull(6) ? null : reader.GetInt32(6),
+                    IsActive = reader.GetBoolean(7)
+                });
+            }
+            return users;
         }
     }
 }

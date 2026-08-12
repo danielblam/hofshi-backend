@@ -34,18 +34,33 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAll", builder =>
-//    {
-//        builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-//    });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5501") // Live Server port
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
 
-//builder.Services.AddAuthentication("Negotiate").AddNegotiate();
-builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
+var useNegotiate =
+    builder.Configuration.GetValue<bool>("Authorization:UseNegotiate");
+
+if(useNegotiate)
+{
+    builder.Services.AddAuthentication("Negotiate").AddNegotiate();
+}
+else
+{
+    builder.Services.AddAuthentication(IISDefaults.AuthenticationScheme);
+}
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<DbService>();
@@ -66,11 +81,12 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-//app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationsHub>("/notifications");
 
 app.Run();

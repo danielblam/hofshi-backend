@@ -2,8 +2,34 @@ import { HDate, gematriya, HebrewCalendar, Event } from 'https://cdn.jsdelivr.ne
 import {
     ping, repeat, getSelf, url,
     resetVacationDayInfo, toDate, getIsraelBusinessDays,
-    getEvents, isEventDay, getTeams
+    getEvents, isEventDay, getTeams,
+    ws_url
 } from "./utilities.js"
+
+console.log(ws_url)
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl(ws_url)
+    .withAutomaticReconnect()
+    .build();
+
+connection.on("VacationsChanged", async () => {
+    console.log("Vacations changed!");
+
+    vacations = await getVacations()
+    buildVacationList()
+    renderCalendar(currentDate)
+});
+connection.on("EventsChanged", async () => {
+    console.log("Events changed!");
+
+    events = await getEvents(self.token)
+    buildEventList()
+    renderCalendar(currentDate)
+});
+
+connection.start()
+    .then(() => console.log("Connected"))
+    .catch(err => console.error(err));
 
 var self;
 

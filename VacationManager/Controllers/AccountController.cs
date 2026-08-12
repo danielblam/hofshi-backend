@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Diagnostics;
+using System.DirectoryServices.AccountManagement;
 using VacationManager.Models;
 using VacationManager.Services;
 using static VacationManager.Services.AccountService;
@@ -11,12 +12,15 @@ namespace VacationManager.Controllers
 {
     [Route("api/Accounts")]
     [ApiController]
-    public class AccountController(AccountService _service, InfoService _info, Utilities _utils, DbService _db) : Controller
+    public class AccountController(AccountService _service, InfoService _info, Utilities _utils, DbService _db, IConfiguration config) : Controller
     {
         private readonly AccountService service = _service;
         private readonly InfoService info = _info;
         private readonly Utilities utils = _utils;
         private readonly DbService db = _db;
+        private readonly bool enforceRoles = config.GetValue<bool>("Authorization:EnforceRoles");
+        private readonly bool forceLogin = config.GetValue<bool>("Authorization:ForceLogin");
+        private readonly string roleName = config.GetValue<string>("Authorization:RoleName");
 
         [HttpGet("Test")]
         public IActionResult IdentityTest()
@@ -79,16 +83,28 @@ namespace VacationManager.Controllers
         [HttpGet("TryWindowsAuth")]
         public IActionResult TryWindowsAuth()
         {
-            if (User.Identity?.Name == null) return BadRequest("User is null.");
+            if (!forceLogin) return Forbid("Force login is currently disabled."); 
+            if (enforceRoles && User.Identity?.Name == null) return BadRequest("User is null.");
             string name = User.Identity?.Name;
 
-            int createRole = -1;
-            string domain = "CARMEL";
-            if (User.IsInRole($"{domain}\\HofshiUser")) createRole = 1;
-            if (User.IsInRole($"{domain}\\HofshiAdmin")) createRole = 10;
-            if (User.IsInRole($"{domain}\\HofshiSuperAdmin")) createRole = 20;
+            string? email = GetADEmail(name);
 
-            if (createRole < 0) return Unauthorized("אין לך גישה למערכת .");
+            if(email == null)
+            {
+                name = name.Split('\\').Last();
+            }
+            else
+            {
+                name = email;
+            }
+
+                int createRole = enforceRoles ? -1 : 1;
+            string domain = "CARMEL";
+            if (User.IsInRole($"{domain}\\{roleName}User")) createRole = 1;
+            if (User.IsInRole($"{domain}\\{roleName}Admin")) createRole = 10;
+            if (User.IsInRole($"{domain}\\{roleName}SuperAdmin")) createRole = 20;
+
+            if (enforceRoles && createRole < 0) return Unauthorized("אין לך גישה למערכת .");
 
             var userId = service.WindowsAuthLogIn(name);
             if(userId == -1)
@@ -111,7 +127,7 @@ namespace VacationManager.Controllers
 
             service.SaveToken(userId, token);
 
-            var user = info.GetSelfInfo(userId);
+            var user = info.GetUserInfo(userId);
             var teamName = user.TeamId == null ? "-" : info.GetTeamName((int)user.TeamId);
 
             LoginResponse response = new()
@@ -122,6 +138,19 @@ namespace VacationManager.Controllers
             };
             return Ok(response);
         }
+        private string? GetADEmail(string username)
+        {
+            using var context = new PrincipalContext(ContextType.Domain);
+
+            var user = UserPrincipal.FindByIdentity(
+                context,
+                IdentityType.SamAccountName,
+                username.Split('\\').Last()
+            );
+
+            return user?.EmailAddress;
+        }
+
 
         [HttpPost("Login")]
         public IActionResult Login(LoginDetails details)
@@ -138,7 +167,7 @@ namespace VacationManager.Controllers
 
             service.SaveToken(userId, token);
 
-            var user = info.GetSelfInfo(userId);
+            var user = info.GetUserInfo(userId);
             var teamName = user.TeamId == null ? "-" : info.GetTeamName((int)user.TeamId);
 
             LoginResponse response = new()
