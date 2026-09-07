@@ -2,10 +2,9 @@ function getToken() {
     let token = localStorage.getItem("token")
 }
 
- const url = `/api`
-export const ws_url = `/notifications`
-//const url = `https://localhost:7079/api`
-//export const ws_url = `https://localhost:7079/notifications`
+// const url = `/api`
+const url = `https://localhost:7079/api`
+export const ws_url = `https://localhost:7079/notifications`
 
 async function ping(token) {
     const request = new Request(`${url}/Accounts/Ping`, {

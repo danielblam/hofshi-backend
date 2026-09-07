@@ -64,6 +64,7 @@ builder.Services.AddSignalR();
 
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<DbService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddScoped<EventService>();
 builder.Services.AddScoped<InfoService>();
 builder.Services.AddScoped<Utilities>();

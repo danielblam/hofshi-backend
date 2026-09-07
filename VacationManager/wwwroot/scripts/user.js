@@ -250,7 +250,7 @@ function buildVacationList() {
         let statusEmoji = ['&nbsp;❗', '⏳', '✅'][vacation.vacation.status + 1]
         $(".vacation-list").append(
             `
-            <details ${openVacations[index] ? 'open' : ''}>
+            <details data-id="${vacation.vacation.vacationId}" ${openVacations[index] ? 'open' : ''}>
                 <summary class="my-1">
                     ${dateFns.format(endDate, "dd/MM/yy")} - ${dateFns.format(startDate, "dd/MM/yy")} <span class="fs-5">${statusEmoji}</span>
                 </summary>
@@ -322,6 +322,10 @@ var vacationToEdit;
 var addOrEdit = "add"
 
 var openVacations;
+
+const params = new URLSearchParams(window.location.search);
+const queriedVacationId = params.get("vacationId")
+console.log("queried vacation id: " + queriedVacationId)
 
 $(document).ready(async function () {
 
@@ -487,6 +491,9 @@ $(document).ready(async function () {
         $(".submit-request").removeClass("disabled")
         $(".request-vacation-modal").modal("show")
     })
+    if(queriedVacationId) {
+        $(`details[data-id="${queriedVacationId}"] .edit-vacation-request`).trigger("click")
+    }
 
     $(".account-header-logout").click(function () {
         localStorage.removeItem("token")

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using VacationManager.Models;
 using VacationManager.Services;
@@ -50,7 +51,7 @@ namespace VacationManager.Controllers
 
             var result = service.RequestNewVacation(userId, request);
 
-            await emailService.NotifyNewVacationRequest(userId, request);
+            await emailService.NotifyNewVacationRequest(userId, request, result);
             await hub.Clients.All.SendAsync("VacationsChanged");
 
             return Ok();
@@ -85,8 +86,8 @@ namespace VacationManager.Controllers
                 case -3: return Forbid("Invalid list size.");
             }
 
-            // this endpoint is always called right after the Edit endpoint, so sending another signal is unnecessary
-            //await hub.Clients.All.SendAsync("VacationsChanged");
+            await hub.Clients.All.SendAsync("VacationsChanged");
+            await emailService.NotifyVacationRequestResolved(userId, vacationId, approve);
             return Ok();
         }
 
@@ -110,11 +111,18 @@ namespace VacationManager.Controllers
             var token = accountService.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
 
-            if (!accountService.Authorize(token, Roles.ADMIN)
-                && accountService.GetUserIdFromToken(token) != utils.GetUserIdFromVacationId(vacationId)) return Unauthorized("No permission, or expired token.");
+            bool isAdmin = accountService.Authorize(token, Roles.ADMIN);
+            int tokenUserId = accountService.GetUserIdFromToken(token);
+            int vacationUserId = utils.GetUserIdFromVacationId(vacationId);
+
+            if (!isAdmin && tokenUserId != vacationUserId) return Unauthorized("No permission, or expired token.");
 
             var result = service.EditVacationRequest(vacationId, request);
 
+            if (!isAdmin && tokenUserId == vacationUserId)
+            {
+                await emailService.NotifyUpdatedVacationRequest(vacationUserId, vacationId);
+            }
             await hub.Clients.All.SendAsync("VacationsChanged");
             return Ok();
         }

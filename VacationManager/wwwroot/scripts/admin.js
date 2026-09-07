@@ -552,6 +552,9 @@ var openVacations;
 var statsChart;
 var statsMonth = new Date()
 
+const params = new URLSearchParams(window.location.search);
+const queriedVacationId = params.get("vacationId")
+
 $(document).ready(async function () {
 
     $(".vacation-type").val("")
@@ -773,6 +776,9 @@ $(document).ready(async function () {
         updateVacationModal()
         $(".request-vacation-modal").modal("show")
     })
+    if(queriedVacationId) {
+        $(`details[data-id="${queriedVacationId}"] .resolve-vacation-request`).trigger("click")
+    }
 
     $(".account-header-logout").click(function () {
         localStorage.removeItem("token")
@@ -825,7 +831,7 @@ $(document).ready(async function () {
         $(".submit-event").addClass('disabled')
         $(".event-fail").hide()
 
-        $(".submit-event").html("הופסה")
+        $(".submit-event").html("הוספה")
         $(".add-event-modal-title").html(`הוספת אירוע`)
         resetEventModal()
         $(".add-event-modal").modal("show")

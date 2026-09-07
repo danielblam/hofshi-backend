@@ -23,6 +23,7 @@ namespace VacationManager.Services
         public enum Roles
         {
             USER = 1,
+            REVIEWER = 5,
             ADMIN = 10,
             SUPERADMIN = 20
         }
@@ -90,12 +91,19 @@ namespace VacationManager.Services
 
             SqlDataReader reader = command.ExecuteReader();
             reader.Read();
-            int userId = reader.GetInt32(0);
+            try
+            {
+                int userId = reader.GetInt32(0); //this threw an error once and i genuiunely dont know why
 
-            reader.Dispose();
-            sqlCon.Close();
+                reader.Dispose();
+                sqlCon.Close();
 
-            return userId;
+                return userId;
+            }
+            catch
+            {
+                return -1; // this SHOULD take care of most if not all problems caused by this happening <:)
+            }
         }
 
 
@@ -149,7 +157,8 @@ namespace VacationManager.Services
                         Email = reader.GetString(3),
                         Role = reader.GetInt32(5),
                         TeamId = reader.GetInt32(6),
-                        IsActive = reader.GetBoolean(7)
+                        IsActive = reader.GetBoolean(7),
+                        WorkDayHours = reader.GetByte(8)
                     };
                     users.Add(user);
                 }
@@ -174,7 +183,7 @@ namespace VacationManager.Services
             string hashedpassword = isWindowsAuth ? "-" : HashPassword(user.Password);
 
             SqlCommand command = new(
-                $"INSERT INTO Users (FirstName, LastName, Email, PasswordHash, Role, TeamId, IsActive) VALUES (@firstName, @lastName, @email, @passwordHash, @role, @teamId, 1);" +
+                $"INSERT INTO Users (FirstName, LastName, Email, PasswordHash, Role, TeamId, IsActive, WorkDayHours) VALUES (@firstName, @lastName, @email, @passwordHash, @role, @teamId, 1, 8);" +
                 $"SELECT SCOPE_IDENTITY();", sqlCon);
             command.Parameters.AddWithValue("@firstName", user.FirstName);
             command.Parameters.AddWithValue("@lastName", user.LastName);
@@ -213,9 +222,35 @@ namespace VacationManager.Services
             {
                 command.ExecuteNonQuery();
             }
-            catch (SqlException)
+            catch (SqlException e)
             {
+                System.Diagnostics.Debug.WriteLine(e);
                 return -3;
+            }
+            return 0;
+        }
+
+        public int UpdateUserSettings(UserSettings settings)
+        {
+            User user = info.GetUserInfo(settings.UserId);
+
+            using SqlConnection sqlCon = new(connectionString);
+            sqlCon.Open();
+
+            SqlCommand command = new(
+                $"UPDATE Users SET WorkDayHours = @workDayHours, Role = @role WHERE UserId = @userId", sqlCon);
+            command.Parameters.AddWithValue("@userId", settings.UserId);
+            command.Parameters.AddWithValue("@workDayHours", settings.WorkDayHours);
+            command.Parameters.AddWithValue("@role", Math.Max(settings.Role, user.Role ?? 1));
+
+            try
+            {
+                command.ExecuteNonQuery();
+            }
+            catch (SqlException e)
+            {
+                System.Diagnostics.Debug.WriteLine(e);
+                return -1;
             }
             return 0;
         }
@@ -338,7 +373,8 @@ namespace VacationManager.Services
                         Email = reader.GetString(3),
                         Role = reader.GetInt32(5),
                         TeamId = reader.GetInt32(6),
-                        IsActive = reader.GetBoolean(7)
+                        IsActive = reader.GetBoolean(7),
+                        WorkDayHours = reader.GetByte(8)
                     };
                     users.Add(user);
                 }

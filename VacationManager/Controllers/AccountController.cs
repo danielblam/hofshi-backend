@@ -21,6 +21,7 @@ namespace VacationManager.Controllers
         private readonly bool enforceRoles = config.GetValue<bool>("Authorization:EnforceRoles");
         private readonly bool forceLogin = config.GetValue<bool>("Authorization:ForceLogin");
         private readonly string roleName = config.GetValue<string>("Authorization:RoleName");
+        private readonly string emailDomain = config.GetValue<string>("Smtp:EmailDomain");
 
         [HttpGet("Test")]
         public IActionResult IdentityTest()
@@ -91,7 +92,7 @@ namespace VacationManager.Controllers
 
             if(email == null)
             {
-                name = name.Split('\\').Last();
+                name = name.Split('\\').Last() + "@" + emailDomain;
             }
             else
             {
@@ -257,6 +258,18 @@ namespace VacationManager.Controllers
 
             return Ok(users);
 
+        }
+
+        [HttpPut("Admin/UpdateSettings")]
+        public IActionResult UpdateUserSettings(UserSettings settings)
+        {
+            var token = service.GetToken(Request);
+            if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!service.Authorize(token, Roles.ADMIN)) return Unauthorized("No permission, or expired token.");
+
+            var result = service.UpdateUserSettings(settings);
+
+            return Ok();
         }
 
     }

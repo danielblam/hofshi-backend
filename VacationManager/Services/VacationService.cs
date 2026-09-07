@@ -106,7 +106,7 @@ namespace VacationManager.Services
 
                 dayCommand.ExecuteNonQuery();
             }
-            return 0;
+            return newVacationId;
         }
 
         public int AddNewVacation(int userId, VacationRequest request)
@@ -131,7 +131,7 @@ namespace VacationManager.Services
 
                 dayCommand.ExecuteNonQuery();
             }
-            return 0;
+            return newVacationId;
         }
 
         public int ResolveVacationRequest(int resolverUserId, int vacationId, List<bool> approveList)

@@ -10,5 +10,7 @@
         public int? Role { get; set; }
         public int? TeamId { get; set; }
         public bool? IsActive { get; set; }
+
+        public byte WorkDayHours { get; set; }
     }
 }
