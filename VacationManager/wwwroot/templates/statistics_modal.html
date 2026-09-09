@@ -1,0 +1,42 @@
+<div class="statistics-modal modal fade">
+    <!-- this is a leftover of a scrapped approach to adding the reviewer role. dont mind it -->
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h2 class="modal-title text-end w-100 p-1">סטטיסטיקה</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body rtl">
+                <div class="fw-bold fs-5">
+                    הצגת ימי חופש לפי משתמש:
+                </div>
+                <input class="form-check-input mx-2" type="radio" name="stats-filter" value="1">
+                <label>השנה</label>
+                <input class="form-check-input mx-2" type="radio" name="stats-filter" value="0">
+                <label>החודש</label>
+                <div class="stats-month-nav my-2">
+                    <button class="btn btn-white p-1 stats-next-month">▶️</button>
+                    <label class="stats-month-label p-1 text-center border rounded">דצמבר 2025</label>
+                    <button class="btn btn-white p-1 stats-previous-month">◀️</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="statistics-chart" class="w-100"></canvas>
+                </div>
+                <div class="fw-bold fs-5">
+                    ניצול 5 ימי חופש רצופים השנה:
+                </div>
+                <div class="five-day-list d-flex flex-wrap">
+
+                </div>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>

@@ -10,12 +10,13 @@ namespace VacationManager.Controllers
     [Route("api/Vacations")]
     [ApiController]
     public class VacationController(VacationService _service, AccountService _accountService, 
-        Utilities _utils, EmailService _emailService, IHubContext<NotificationsHub> _hub) : Controller
+        Utilities _utils, EmailService _emailService, InfoService _info, IHubContext<NotificationsHub> _hub) : Controller
     {
         private readonly VacationService service = _service;
         private readonly AccountService accountService = _accountService;
         private readonly EmailService emailService = _emailService;
         private readonly Utilities utils = _utils;
+        private readonly InfoService info = _info;
         private readonly IHubContext<NotificationsHub> hub = _hub;
 
         [HttpGet("Team/{id}")]
@@ -23,7 +24,7 @@ namespace VacationManager.Controllers
         {
             var token = accountService.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
-            if (!accountService.Authorize(token, Roles.ADMIN)) return Unauthorized("Insufficient permission.");
+            if (!accountService.Authorize(token, Roles.REVIEWER)) return Unauthorized("Insufficient permission.");
 
             var vacations = service.GetVacationsByTeamId(id);
             return Ok(vacations);
@@ -38,6 +39,20 @@ namespace VacationManager.Controllers
 
             var vacations = service.GetVacationsByUserId(id);
             return Ok(vacations);
+        }
+        [HttpGet("Reviewer/{id}")]
+        public IActionResult GetOtherByUserId(int id)
+        {
+            var token = accountService.GetToken(Request);
+            if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
+            if (!accountService.Authorize(token, Roles.REVIEWER)) return Unauthorized("Insufficient permission.");
+
+            int teamId = info.GetUserInfo(id).TeamId ?? -1;
+
+            var allVacations = service.GetVacationsByTeamId(teamId);
+            var otherVacations = allVacations.Where(x => x.Vacation.UserId != id);
+
+            return Ok(otherVacations);
         }
 
         [HttpPost("Request")]

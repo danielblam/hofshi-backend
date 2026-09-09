@@ -19,6 +19,7 @@
 
     <script type="module" src="./scripts/utilities.js"></script>
     <script type="module" src="./scripts/admin.js"></script>
+    <script type="module" src="./scripts/shared.js"></script>
     <title>ניהול חופשות</title>
 </head>
 
@@ -34,6 +35,11 @@
                             height="28" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
                             <path
                                 d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1z" />
+                        </svg></button>
+                    <button class="btn btn-dark settings-button"><svg xmlns="http://www.w3.org/2000/svg" width="28"
+                            height="28" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z" />
                         </svg></button>
                 </div>
                 <div class="position-absolute top-100 end-0 px-2 mt-1 text-black small-text">
@@ -150,17 +156,6 @@
                             </tr>
                         </thead>
                         <tbody class="calendar-body">
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7<br>
-                                    <p class="fs-6 fw-normal mx-1">hi</p>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                     <div class="position-absolute bottom-0 start-100">
@@ -297,62 +292,8 @@
         </div>
     </div>
 
-
-    <div class="statistics-modal modal fade">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    <h2 class="modal-title text-end w-100 p-1">סטטיסטיקה</h3>
-                </div>
-
-                <!-- Modal body -->
-                <div class="modal-body rtl">
-                    <div class="fw-bold fs-5">
-                        הצגת ימי חופש לפי משתמש:
-                    </div>
-                    <input class="form-check-input mx-2" type="radio" name="stats-filter" value="1">
-                    <label>השנה</label>
-                    <input class="form-check-input mx-2" type="radio" name="stats-filter" value="0">
-                    <label>החודש</label>
-                    <!-- <div class="w-25 input-group my-2 ltr">
-                        <select class="form-select statistics-filter-select rtl">
-                            <option value="0">חודש</option>
-                            <option value="1">שנה</option>
-                        </select>
-                        <span class="input-group-text">...לחלק לפי</span>
-                    </div>
-                    <div class="row">
-                        <div class="col-2">
-                            <select class="form-select stats-time-range">
-                                <option value="all">הכל</option>
-                            </select>
-                        </div>
-                    </div>
-                -->
-                    <div class="stats-month-nav my-2">
-                        <button class="btn btn-white p-1 stats-next-month">▶️</button>
-                        <label class="stats-month-label p-1 text-center border rounded">דצמבר 2025</label>
-                        <button class="btn btn-white p-1 stats-previous-month">◀️</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="statistics-chart" class="w-100"></canvas>
-                    </div>
-                    <div class="fw-bold fs-5">
-                        ניצול 5 ימי חופש רצופים השנה:
-                    </div>
-                    <div class="five-day-list d-flex flex-wrap">
-
-                    </div>
-                </div>
-
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                </div>
-            </div>
-        </div>
+    <div id="statistics-modal-container">
+    <!-- statistics modal -->
     </div>
 
     <div class="add-event-modal modal fade">
@@ -458,6 +399,68 @@
                             <h4 class="fw-bold">נוכחות צוות</h4>
                             <div class="day-overview-modal-team-members">
 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal modal fade">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h2 class="modal-title text-end w-100 p-1">הגדרות משתמשים</h2>
+                </div>
+                <div class="modal-body rtl">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="settings-users-list">
+                                <div class="d-flex border rounded p-2 px-3 my-1">
+                                    <div>
+                                        דניאל בלם
+                                    </div>
+                                    <div class="me-auto">
+                                        <button class="btn btn-white p-0">⚙️</button>
+                                    </div>
+                                </div>
+                                <div class="d-flex border rounded p-2 px-3 my-1">
+                                    <div>
+                                        דניאל בלם
+                                    </div>
+                                    <div class="me-auto">
+                                        <button class="btn btn-white p-0">⚙️</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-8">
+                            <div class="user-settings-container d-none">
+                                <div class="mb-4">
+                                    <h4>הגדרות של <span class="user-settings-name"></span></h4>
+                                </div>
+                                <div class="row">
+                                    <div class="col-5">
+                                        <label>שעות עבודה ביום מלא</label>
+                                        <input type="number" min="4" max="24" class="form-control w-100 work-day-hours user-setting">
+                                    </div>
+                                    <div class="col-7 user-role-setting-container">
+                                        <label>גישת צפייה בחופשות</label>
+                                        <select class="form-control user-role-setting user-setting">
+                                            <option value="1">של המשתמש בלבד</option>
+                                            <option value="5">של כל הצוות</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <button class="btn btn-primary save-user-settings-button disabled">שמירה</button>
+                                    <span class="mx-2 user-settings-action-status"></span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -14,8 +14,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+
     <script type="module" src="./scripts/user.js"></script>
     <script type="module" src="./scripts/utilities.js"></script>
+    <script type="module" src="./scripts/shared.js"></script>
     <title>ניהול חופשות</title>
 </head>
 
@@ -26,6 +29,13 @@
             <div class="bg-dark text-white account-header p-3 px-4" style="direction:rtl">
                 מחובר כ: <span class="account-header-name fw-bold"></span>
                 <!-- <button class="btn btn-secondary mx-3 fw-bold account-header-logout">התנתק</button> -->
+                 <div class="position-absolute top-0 start-0 px-2 mt-2">
+                    <button class="btn btn-dark statistics-button d-none"><svg xmlns="http://www.w3.org/2000/svg" width="28"
+                            height="28" fill="currentColor" class="bi bi-bar-chart-line-fill" viewBox="0 0 16 16">
+                            <path
+                                d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1z" />
+                        </svg></button>
+                </div>
             </div>
         </div>
         <div class="row vh-100">
@@ -100,17 +110,6 @@
                             </tr>
                         </thead>
                         <tbody class="calendar-body">
-                            <tr>
-                                <td>1</td>
-                                <td>2</td>
-                                <td>3</td>
-                                <td>4</td>
-                                <td>5</td>
-                                <td>6</td>
-                                <td>7<br>
-                                    <p class="fs-6 fw-normal mx-1">hi</p>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                     <div class="position-absolute bottom-0 start-100 translate-middle-y">
@@ -222,6 +221,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div id="statistics-modal-container">
+    <!-- statistics modal -->
     </div>
 
 </body>

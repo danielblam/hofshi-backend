@@ -40,7 +40,8 @@ function getSelf() {
     }
     let user = localStorage.getItem("user")
     let teamName = localStorage.getItem("teamName")
-    return { token: token, user: JSON.parse(user), teamName: teamName }
+    let role = localStorage.getItem("role")
+    return { token: token, user: JSON.parse(user), teamName: teamName, role: role }
 }
 
 function resetVacationDayInfo() {

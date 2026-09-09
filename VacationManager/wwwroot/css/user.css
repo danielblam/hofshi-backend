@@ -16,6 +16,10 @@ body {
     padding-right:6px;
 }
 
+.rtl {
+    direction: rtl;
+}
+
 .heb-date {
     font-size:80%;
 }

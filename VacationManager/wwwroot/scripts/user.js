@@ -1,4 +1,4 @@
-import { HDate, gematriya, HebrewCalendar, Event } from 'https://cdn.jsdelivr.net/npm/@hebcal/core@6.0.6/+esm';
+import { HDate, gematriya, HebrewCalendar, Event, flags } from 'https://cdn.jsdelivr.net/npm/@hebcal/core@6.0.6/+esm';
 import {
     ping, repeat, getSelf, url,
     resetVacationDayInfo, toDate, getIsraelBusinessDays,
@@ -230,11 +230,11 @@ function buildVacationDayEditor(dates, types) {
                     ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - יום ${weekDays[date.getDay()]}
                 </div>
                 <select class="form-control vacation-day-type">
-                    <option>יום חופש</option>
-                    <option>חצי יום חופש</option>
-                    <option>יום בחירה</option>
-                    <option>יום הצהרה</option>
-                    <option>היעדרות צפויה</option>
+                    <option value="${"יום חופש"}">יום חופש${cholHaMoedText(date)}</option>
+                    <option value="${"חצי יום חופש"}">חצי יום חופש${cholHaMoedText(date)}</option>
+                    <option value="${"יום בחירה"}">יום בחירה${cholHaMoedText(date)}</option>
+                    <option value="${"יום הצהרה"}">יום הצהרה${cholHaMoedText(date)}</option>
+                    <option value="${"היעדרות צפויה"}">היעדרות צפויה${cholHaMoedText(date)}</option>
                 </select>
             </div>`)
     })
@@ -260,13 +260,13 @@ function buildVacationList() {
                 let type = vacationDay.dayType
                 let dayStatusEmoji = ['❌', '', '✔️'][vacationDay.status + 1]
                 return `<div class="row">
-                    <div class="col-9">
+                    <div class="col-10">
                     <div class="vacation-list-day day-type-${type} rounded pe-1 my-1">
-                    ${dateFns.format(date, "dd/MM/yy")} - יום ${weekDays[date.getDay()]} - ${vacationTypes[type - 1]}
+                    ${dateFns.format(date, "dd/MM/yy")} - יום ${weekDays[date.getDay()]} - ${vacationTypes[type - 1]}${cholHaMoedText(date)}
                     
                     </div>
                     </div>
-                    <div class="col-3 fw-bold text-end p-0 my-1">${dayStatusEmoji}</div>
+                    <div class="col-2 fw-bold text-end p-0 my-1">${dayStatusEmoji}</div>
                     </div>`
             }).join("")}
                 <button class="btn bg-secondary bg-opacity-50 my-1 delete-vacation-request">🗑</button>
@@ -304,6 +304,14 @@ function vacationConflict() {
     $(".submit-request").addClass("disabled")
 }
 
+function isCholHaMoed(date) {
+    const events = HebrewCalendar.getHolidaysOnDate(date, true);
+    return events?.some(event => event.getFlags() & flags.CHOL_HAMOED) ?? false;
+}
+function cholHaMoedText(date) {
+    return isCholHaMoed(date) ? " (חול המועד)" : ""
+}
+
 var monthNames = ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר']
 var weekDays = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ז']
 var vacationTypes = ['יום חופש', 'חצי יום חופש', 'יום בחירה', 'יום הצהרה', 'היעדרות צפויה']
@@ -332,6 +340,7 @@ $(document).ready(async function () {
     $(".vacation-type").val("")
 
     self = getSelf()
+
     let check = await ping(self.token)
     if (!check) window.location.href = "./index.html"
 

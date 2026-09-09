@@ -249,7 +249,7 @@ namespace VacationManager.Controllers
         {
             var token = service.GetToken(Request);
             if (token == null) return BadRequest("Authorization headers missing, or syntax was malformed.");
-            if (!service.Authorize(token, Roles.ADMIN)) return Unauthorized("No permission, or expired token.");
+            if (!service.Authorize(token, Roles.REVIEWER)) return Unauthorized("No permission, or expired token.");
 
             int userId = service.GetUserIdFromToken(token);
 

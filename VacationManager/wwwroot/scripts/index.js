@@ -32,6 +32,7 @@ async function logIn(email, password, windowsAuth = false) {
             localStorage.setItem("token", token)
             localStorage.setItem("user", JSON.stringify(json["user"]))
             localStorage.setItem("teamName", teamName)
+            localStorage.setItem("role",role)
             redirect(role)
             break;
         case 401:
@@ -51,6 +52,7 @@ function redirect(role) {
         case 1:
             window.location.href = `./user.html${queryString}`
             break;
+        case 5:
         case 10:
             window.location.href = `./admin.html${queryString}`
             break;

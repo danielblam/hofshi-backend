@@ -83,7 +83,7 @@ namespace VacationManager.Services
             }
             return vacations;
         }
-        
+
         public int RequestNewVacation(int userId, VacationRequest request)
         {
             using SqlConnection sqlCon = new(connectionString);
